@@ -3,7 +3,7 @@ require 'includes/config.php';
 
 $username = 'admin';
 $email = 'admin@example.com';
-$password = 'your_strong_password';
+$password = 'admin123';
 $hash = password_hash($password, PASSWORD_BCRYPT);
 
 $pdo->prepare("INSERT INTO users (...) VALUES (?, ?, ?, TRUE)")
