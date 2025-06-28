@@ -16,9 +16,16 @@ function registerUser($username, $email, $password) {
     }
 }
 
+function isLoggedIn() {
+    return isset($_SESSION['user_id']);
+}
+
+function isAdmin() {
+    return isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true;
+}
+
 function loginUser($username, $password) {
     global $pdo;
-    
     $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
     $stmt->execute([$username]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -26,18 +33,10 @@ function loginUser($username, $password) {
     if ($user && password_verify($password, $user['password_hash'])) {
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['username'] = $user['username'];
-        $_SESSION['is_admin'] = $user['is_admin'];
+        $_SESSION['is_admin'] = (bool)$user['is_admin'];
         return true;
     }
     return false;
-}
-
-function isLoggedIn() {
-    return isset($_SESSION['user_id']);
-}
-
-function isAdmin() {
-    return isLoggedIn() && $_SESSION['is_admin'];
 }
 
 function logout() {
