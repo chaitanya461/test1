@@ -186,6 +186,7 @@ $recentQuizzes = $pdo->query("
                     <li><a href="manage_quizzes.php">Manage Quizzes</a></li>
                     <li><a href="manage_users.php">Manage Users</a></li>
                     <li><a href="view_results.php">View Results</a></li>
+                    <li><a href="admin_approve_reattempt.php">Approve Reattempt</a></li>
                 </ul>
             </div>
             
