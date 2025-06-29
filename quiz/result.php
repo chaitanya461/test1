@@ -42,7 +42,7 @@ $responses = $responses->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <title>Quiz Results: <?php echo htmlspecialchars($result['title']); ?></title>
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="styles1.css">
 </head>
 <body>
     <div class="container">
