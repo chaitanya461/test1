@@ -56,3 +56,15 @@ CREATE TABLE quiz_results (
 -- Create an admin user (password: admin123 - change this in production)
 INSERT INTO users (username, email, password_hash, is_admin)
 VALUES ('admin', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', TRUE);
+CREATE TABLE reattempt_requests (
+    request_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    quiz_id INT NOT NULL,
+    request_date DATETIME NOT NULL,
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    admin_id INT NULL,
+    action_date DATETIME NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (quiz_id) REFERENCES quizzes(quiz_id),
+    FOREIGN KEY (admin_id) REFERENCES users(user_id)
+);
