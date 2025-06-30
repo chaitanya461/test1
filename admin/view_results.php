@@ -13,7 +13,73 @@ $user_filter = isset($_GET['user_id']) ? intval($_GET['user_id']) : null;
 $date_from = isset($_GET['date_from']) ? $_GET['date_from'] : null;
 $date_to = isset($_GET['date_to']) ? $_GET['date_to'] : null;
 
-// Base query
+// Handle CSV download
+if (isset($_GET['download']) && $_GET['download'] == 'csv') {
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename=quiz_results_' . date('Y-m-d') . '.csv');
+    
+    $output = fopen('php://output', 'w');
+    
+    // CSV headers
+    fputcsv($output, array('User', 'Quiz', 'Score', 'Correct Answers', 'Total Questions', 'Date Completed'));
+    
+    // Base query for CSV
+    $query = "
+        SELECT qr.*, u.username, q.title 
+        FROM quiz_results qr
+        JOIN users u ON qr.user_id = u.user_id
+        JOIN quizzes q ON qr.quiz_id = q.quiz_id
+    ";
+    
+    // Add conditions based on filters
+    $conditions = [];
+    $params = [];
+    
+    if ($quiz_filter) {
+        $conditions[] = "qr.quiz_id = ?";
+        $params[] = $quiz_filter;
+    }
+    
+    if ($user_filter) {
+        $conditions[] = "qr.user_id = ?";
+        $params[] = $user_filter;
+    }
+    
+    if ($date_from) {
+        $conditions[] = "qr.completed_at >= ?";
+        $params[] = $date_from . ' 00:00:00';
+    }
+    
+    if ($date_to) {
+        $conditions[] = "qr.completed_at <= ?";
+        $params[] = $date_to . ' 23:59:59';
+    }
+    
+    if (!empty($conditions)) {
+        $query .= " WHERE " . implode(" AND ", $conditions);
+    }
+    
+    $query .= " ORDER BY qr.completed_at DESC";
+    
+    $stmt = $pdo->prepare($query);
+    $stmt->execute($params);
+    
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        fputcsv($output, array(
+            $row['username'],
+            $row['title'],
+            round($row['score'], 2) . '%',
+            $row['correct_answers'],
+            $row['total_questions'],
+            date('M j, Y g:i a', strtotime($row['completed_at']))
+        ));
+    }
+    
+    fclose($output);
+    exit;
+}
+
+// Base query for HTML display
 $query = "
     SELECT qr.*, u.username, q.title 
     FROM quiz_results qr
@@ -231,6 +297,30 @@ $users = $pdo->query("SELECT user_id, username FROM users ORDER BY username")->f
         .btn-view:hover {
             background-color: #27ae60;
         }
+        
+        .btn-download {
+            background-color: #9b59b6;
+            color: white;
+        }
+        
+        .btn-download:hover {
+            background-color: #8e44ad;
+        }
+        
+        .btn-back {
+            background-color: #34495e;
+            color: white;
+        }
+        
+        .btn-back:hover {
+            background-color: #2c3e50;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -243,6 +333,12 @@ $users = $pdo->query("SELECT user_id, username FROM users ORDER BY username")->f
             <div class="main-content">
                 <div class="admin-header">
                     <h2 class="admin-title">Quiz Results</h2>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <a href="dashboard.php" class="btn btn-back">← Back to Dashboard</a>
+                    <a href="view_results.php?<?php echo http_build_query($_GET); ?>&download=csv" class="btn btn-download">Download Results (CSV)</a>
                 </div>
                 
                 <!-- Filter Form -->
