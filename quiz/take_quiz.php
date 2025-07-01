@@ -171,6 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_quiz'])) {
             <div class="alert alert-info">
                 Your reattempt request was approved. You can now retake this quiz.
             </div>
+                 <a href='../index.php' class='btn btn-secondary'>Back to Dashboard</a>
         <?php endif; ?>
 
         <form method="post">
