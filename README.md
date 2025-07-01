@@ -82,14 +82,17 @@ CREATE TABLE quiz_attempts (
 -- Reattempt requests table
 CREATE TABLE reattempt_requests (
     request_id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(user_id),
-    quiz_id INTEGER NOT NULL REFERENCES quizzes(quiz_id),
+    user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    quiz_id INTEGER NOT NULL REFERENCES quizzes(quiz_id) ON DELETE CASCADE,
     request_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
-    admin_id INTEGER REFERENCES users(user_id),
-    response_date TIMESTAMP WITH TIME ZONE,
-    CONSTRAINT unique_pending_request UNIQUE (user_id, quiz_id) WHERE (status = 'pending')
+    admin_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
+    response_date TIMESTAMP WITH TIME ZONE
 );
+
+-- Create partial unique index separately
+CREATE UNIQUE INDEX unique_pending_request ON reattempt_requests(user_id, quiz_id) 
+WHERE status = 'pending';
 
 SELECT r.*, u.username, q.title as quiz_title
 FROM reattempt_requests r
