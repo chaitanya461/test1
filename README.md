@@ -55,7 +55,7 @@ CREATE TABLE quiz_results (
 
 -- Create an admin user (password: admin123 - change this in production)
 INSERT INTO users (username, email, password_hash, is_admin)
-VALUES ('admin', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', TRUE);
+VALUES ('admin', 'admin@example.com', '$2y$12$no5q4DPdA26jXMsj26cXs.MC9OrD.LDMsHUoQvHkNvIah9B2NE0HG', TRUE);
 CREATE TABLE reattempt_requests (
     request_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -67,4 +67,26 @@ CREATE TABLE reattempt_requests (
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (quiz_id) REFERENCES quizzes(quiz_id),
     FOREIGN KEY (admin_id) REFERENCES users(user_id)
+);
+-- Quiz attempts tracking
+CREATE TABLE quiz_attempts (
+    attempt_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(user_id),
+    quiz_id INTEGER NOT NULL REFERENCES quizzes(quiz_id),
+    attempt_count INTEGER DEFAULT 1,
+    reattempt_allowed BOOLEAN DEFAULT FALSE,
+    last_attempt_date TIMESTAMP WITH TIME ZONE,
+    CONSTRAINT unique_user_quiz UNIQUE (user_id, quiz_id)
+);
+
+-- Reattempt requests table
+CREATE TABLE reattempt_requests (
+    request_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(user_id),
+    quiz_id INTEGER NOT NULL REFERENCES quizzes(quiz_id),
+    request_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+    admin_id INTEGER REFERENCES users(user_id),
+    response_date TIMESTAMP WITH TIME ZONE,
+    CONSTRAINT unique_pending_request UNIQUE (user_id, quiz_id) WHERE (status = 'pending')
 );
