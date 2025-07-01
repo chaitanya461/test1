@@ -23,7 +23,7 @@ if (!$user || !$user['is_admin']) {
 
 // Handle request approval/rejection
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['action'])) { // <-- Fixed parenthesis here
+    if (isset($_POST['action'])) {
         $request_id = intval($_POST['request_id']);
         $action = $_POST['action'];
         
@@ -76,7 +76,6 @@ $stmt = $pdo->prepare("
 $stmt->execute();
 $request_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -100,6 +99,18 @@ $request_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         h1, h2 {
             color: #333;
+        }
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            background-color: #0275d8;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .back-button:hover {
+            background-color: #025aa5;
         }
         table {
             width: 100%;
@@ -183,16 +194,18 @@ $request_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <body>
     <div class="container">
         <h1>Quiz Reattempt Requests</h1>
-        
+
+        <a href="dashboard.php" class="back-button">← Back to Dashboard</a>
+
         <?php if (isset($_SESSION['message'])): ?>
             <div class="message success"><?php echo htmlspecialchars($_SESSION['message']); unset($_SESSION['message']); ?></div>
         <?php endif; ?>
-        
+
         <div class="tab">
             <button class="tablinks active" onclick="openTab(event, 'pending')">Pending Requests</button>
             <button class="tablinks" onclick="openTab(event, 'history')">Request History</button>
         </div>
-        
+
         <div id="pending" class="tabcontent active">
             <h2>Pending Requests</h2>
             <?php if (empty($pending_requests)): ?>
@@ -233,7 +246,7 @@ $request_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </table>
             <?php endif; ?>
         </div>
-        
+
         <div id="history" class="tabcontent">
             <h2>Request History</h2>
             <?php if (empty($request_history)): ?>
@@ -259,7 +272,7 @@ $request_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <td><?php echo htmlspecialchars($request['quiz_title']); ?></td>
                                 <td><?php echo date('M j, Y H:i', strtotime($request['request_date'])); ?></td>
                                 <td>
-                                    <?php 
+                                    <?php
                                     $status = htmlspecialchars($request['status']);
                                     $color = '';
                                     if ($status === 'approved') $color = 'green';
@@ -281,17 +294,14 @@ $request_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <script>
         function openTab(evt, tabName) {
             var i, tabcontent, tablinks;
-            
             tabcontent = document.getElementsByClassName("tabcontent");
             for (i = 0; i < tabcontent.length; i++) {
                 tabcontent[i].className = tabcontent[i].className.replace(" active", "");
             }
-            
             tablinks = document.getElementsByClassName("tablinks");
             for (i = 0; i < tablinks.length; i++) {
                 tablinks[i].className = tablinks[i].className.replace(" active", "");
             }
-            
             document.getElementById(tabName).className += " active";
             evt.currentTarget.className += " active";
         }
