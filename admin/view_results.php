@@ -417,7 +417,7 @@ $users = $pdo->query("SELECT user_id, username FROM users ORDER BY username")->f
                                         <td><?php echo $result['correct_answers']; ?>/<?php echo $result['total_questions']; ?></td>
                                         <td><?php echo date('M j, Y g:i a', strtotime($result['completed_at'])); ?></td>
                                         <td class="action-cell">
-                                            <a href="result_detail.php?result_id=<?php echo $result['result_id']; ?>" class="btn btn-view">View Details</a>
+                                            <a href="#" class="btn btn-view">View Details</a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -431,7 +431,7 @@ $users = $pdo->query("SELECT user_id, username FROM users ORDER BY username")->f
                 </div>
             </div>
         </div>
-        
+    
         <?php include 'admin_footer.php'; ?>
     </div>
 </body>
