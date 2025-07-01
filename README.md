@@ -53,9 +53,26 @@ CREATE TABLE quiz_results (
     completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE quiz_reattempt_requests (
+    request_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    quiz_id INTEGER NOT NULL,
+    request_date TIMESTAMP NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' 
+        CHECK (status IN ('pending', 'approved', 'rejected', 'completed')),
+    admin_id INTEGER NULL,
+    response_date TIMESTAMP NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (quiz_id) REFERENCES quizzes(quiz_id),
+    FOREIGN KEY (admin_id) REFERENCES users(user_id)
+);
+
 -- Create an admin user (password: admin123 - change this in production)
 INSERT INTO users (username, email, password_hash, is_admin)
 VALUES ('admin', 'admin@example.com', '$2y$12$no5q4DPdA26jXMsj26cXs.MC9OrD.LDMsHUoQvHkNvIah9B2NE0HG', TRUE);
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 CREATE TABLE reattempt_requests (
     request_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -100,3 +117,5 @@ JOIN users u ON r.user_id = u.user_id
 JOIN quizzes q ON r.quiz_id = q.quiz_id
 WHERE r.status = 'pending'
 ORDER BY r.request_date ASC;
+
+
