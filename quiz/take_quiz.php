@@ -66,7 +66,7 @@ if ($existing_result && !$approved_request) {
                 <p>If you want to retake this quiz, you need to request permission from admin.</p>
                 <form method='post'>
                     <button type='submit' name='request_reattempt' class='btn btn-primary'>Request Reattempt</button>
-                    <a href='../dashboard.php' class='btn btn-secondary'>Back to Dashboard</a>
+                    <a href='../index.php' class='btn btn-secondary'>Back to Dashboard</a>
                 </form>
             </div>
         </body>
