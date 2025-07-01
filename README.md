@@ -90,3 +90,10 @@ CREATE TABLE reattempt_requests (
     response_date TIMESTAMP WITH TIME ZONE,
     CONSTRAINT unique_pending_request UNIQUE (user_id, quiz_id) WHERE (status = 'pending')
 );
+
+SELECT r.*, u.username, q.title as quiz_title
+FROM reattempt_requests r
+JOIN users u ON r.user_id = u.user_id
+JOIN quizzes q ON r.quiz_id = q.quiz_id
+WHERE r.status = 'pending'
+ORDER BY r.request_date ASC;
