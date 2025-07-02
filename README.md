@@ -73,6 +73,45 @@ VALUES ('admin', 'admin@example.com', '$2y$12$no5q4DPdA26jXMsj26cXs.MC9OrD.LDMsH
 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS questions (
+    question_id SERIAL PRIMARY KEY,
+    quiz_id INT NOT NULL REFERENCES quizzes(quiz_id),
+    question_text TEXT NOT NULL,
+    option_a VARCHAR(255) NOT NULL,
+    option_b VARCHAR(255) NOT NULL,
+    option_c VARCHAR(255) NOT NULL,
+    option_d VARCHAR(255) NOT NULL,
+    correct_answer VARCHAR(10) NOT NULL,
+    points INT NOT NULL DEFAULT 1 CHECK (points > 0),
+    question_type VARCHAR(5) NOT NULL CHECK (question_type IN ('single', 'multi')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT correct_answer_check CHECK (
+        (question_type = 'single' AND correct_answer IN ('a', 'b', 'c', 'd')) OR
+        (question_type = 'multi' AND correct_answer ~ '^[a-d](,[a-d])*$')
+    )
+);
+
+-- First, drop existing constraints if they exist
+ALTER TABLE questions DROP CONSTRAINT IF EXISTS questions_correct_answer_check;
+
+-- Modify the correct_answer column to support multiple answers
+ALTER TABLE questions 
+ALTER COLUMN correct_answer TYPE VARCHAR(10);
+
+-- Add question_type column if it doesn't exist
+ALTER TABLE questions 
+ADD COLUMN IF NOT EXISTS question_type VARCHAR(5) NOT NULL DEFAULT 'single' CHECK (question_type IN ('single', 'multi'));
+
+-- Add the new check constraint
+ALTER TABLE questions
+ADD CONSTRAINT questions_correct_answer_check 
+CHECK (
+    (question_type = 'single' AND correct_answer IN ('a', 'b', 'c', 'd')) OR
+    (question_type = 'multi' AND correct_answer ~ '^[a-d](,[a-d])*$')
+);
+
+
+
 CREATE TABLE reattempt_requests (
     request_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
