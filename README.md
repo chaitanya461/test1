@@ -91,6 +91,9 @@ CREATE TABLE IF NOT EXISTS questions (
     )
 );
 
+ALTER TABLE user_responses 
+ALTER COLUMN selected_answer TYPE VARCHAR(10);
+
 -- First, drop existing constraints if they exist
 ALTER TABLE questions DROP CONSTRAINT IF EXISTS questions_correct_answer_check;
 
