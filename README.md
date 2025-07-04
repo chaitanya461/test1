@@ -73,6 +73,66 @@ VALUES ('admin', 'admin@example.com', '$2y$12$no5q4DPdA26jXMsj26cXs.MC9OrD.LDMsH
 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                             modify for result
+
+ALTER TABLE quizzes ADD COLUMN points_per_question INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE quizzes ADD COLUMN passing_score INTEGER NOT NULL DEFAULT 70;
+
+CREATE TABLE IF NOT EXISTS quiz_results (
+    result_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(user_id),
+    quiz_id INTEGER NOT NULL REFERENCES quizzes(quiz_id),
+    score NUMERIC(5,2) NOT NULL,
+    correct_answers INTEGER NOT NULL,
+    total_questions INTEGER NOT NULL,
+    completed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    earned_points INTEGER NOT NULL,
+    total_possible_points INTEGER NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS user_responses (
+    response_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(user_id),
+    quiz_id INTEGER NOT NULL REFERENCES quizzes(quiz_id),
+    question_id INTEGER NOT NULL REFERENCES questions(question_id),
+    selected_answer CHAR(1) NOT NULL CHECK (selected_answer IN ('a', 'b', 'c', 'd')),
+    is_correct BOOLEAN NOT NULL,
+    points_earned INTEGER NOT NULL DEFAULT 0,
+    answered_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE quiz_results (
+    result_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id),
+    quiz_id INT REFERENCES quizzes(quiz_id),
+    total_questions INT NOT NULL,
+    correct_answers INT NOT NULL,
+    score DECIMAL(5,2) NOT NULL,
+    completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    earned_points INTEGER NOT NULL,
+    total_possible_points INTEGER NOT NULL
+);
+
+CREATE TABLE user_responses (
+    response_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id),
+    question_id INT REFERENCES questions(question_id),
+    quiz_id INTEGER NOT NULL REFERENCES quizzes(quiz_id),
+    selected_answer CHAR(1) CHECK (selected_answer IN ('a', 'b', 'c', 'd')),
+    is_correct BOOLEAN,
+    responded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    points_earned INTEGER NOT NULL DEFAULT 0,
+    answered_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE INDEX idx_quiz_results_user_quiz ON quiz_results(user_id, quiz_id);
+CREATE INDEX idx_user_responses_user_quiz ON user_responses(user_id, quiz_id);
+CREATE INDEX idx_questions_quiz ON questions(quiz_id);
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 CREATE TABLE IF NOT EXISTS questions (
     question_id SERIAL PRIMARY KEY,
     quiz_id INT NOT NULL REFERENCES quizzes(quiz_id),
